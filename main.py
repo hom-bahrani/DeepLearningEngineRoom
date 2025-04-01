@@ -25,7 +25,7 @@ from src.autograd import (
 )
 from src.datasets import demo_dataset_loading
 from src.neural_network import demo_neural_network
-
+from src.gpu import demo_gpu_acceleration
 
 def print_header(title):
     """Print a formatted header."""
@@ -74,6 +74,11 @@ def main():
     input("\nPress Enter to start Neural Network Training demonstration...")
     print_header("7. NEURAL NETWORK TRAINING")
     demo_neural_network()
+
+    # GPU Acceleration
+    input("\nPress Enter to start GPU Acceleration demonstration...")
+    print_header("8. GPU ACCELERATION")
+    demo_gpu_acceleration()
     
     print("\nAll demonstrations complete. Thank you for exploring Deep Learning Foundations!")
 
