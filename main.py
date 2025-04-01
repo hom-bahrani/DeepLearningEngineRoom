@@ -23,6 +23,8 @@ from src.autograd import (
     demo_optimization_with_autograd,
     demo_multi_variable_optimization
 )
+from src.datasets import demo_dataset_loading
+
 
 def print_header(title):
     """Print a formatted header."""
@@ -63,9 +65,9 @@ def main():
     demo_multi_variable_optimization()
     
     # Dataset Loading
-    # input("\nPress Enter to start Dataset Loading demonstration...")
-    # print_header("6. DATASET LOADING")
-    # demo_dataset_loading()  # This function is not defined yet
+    input("\nPress Enter to start Dataset Loading demonstration...")
+    print_header("6. DATASET LOADING")
+    demo_dataset_loading()
     
     print("\nAll demonstrations complete. Thank you for exploring Deep Learning Foundations!")
 
