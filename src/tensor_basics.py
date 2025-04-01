@@ -24,6 +24,9 @@ class Tensor:
             self.data = np.array(data, dtype=np.float32)
         elif isinstance(data, np.ndarray):
             self.data = data.astype(np.float32)
+        elif np.isscalar(data) or isinstance(data, np.number):
+            # Handle numpy scalar types (e.g., np.float32, np.int32)
+            self.data = np.array(data, dtype=np.float32)
         else:
             raise TypeError(f"Unsupported data type: {type(data)}")
         
@@ -70,6 +73,55 @@ class Tensor:
         
         return result
     
+    def __radd__(self, other):
+        """Add a scalar and this tensor (other + self). This is called when a scalar is on the left."""
+        return self.__add__(other)  # Addition is commutative, so we can reuse __add__
+    
+    def __sub__(self, other):
+        """Subtract another tensor or scalar from this tensor."""
+        other_data = other.data if isinstance(other, Tensor) else other
+        result = Tensor(self.data - other_data)
+        
+        if self.requires_grad or (isinstance(other, Tensor) and other.requires_grad):
+            result.requires_grad = True
+            result._children = [(self, 1.0), (other, -1.0)] if isinstance(other, Tensor) else [(self, 1.0)]
+            result._op_name = "sub"
+            
+            def _backward():
+                if self.requires_grad:
+                    if self.grad is None:
+                        self.grad = np.zeros_like(self.data)
+                    self.grad += result.grad
+                
+                if isinstance(other, Tensor) and other.requires_grad:
+                    if other.grad is None:
+                        other.grad = np.zeros_like(other.data)
+                    other.grad -= result.grad  # Note the negative sign for subtraction
+            
+            result.grad_fn = _backward
+        
+        return result
+    
+    def __rsub__(self, other):
+        """Subtract this tensor from another scalar (other - self)."""
+        other_data = other.data if isinstance(other, Tensor) else other
+        result = Tensor(other_data - self.data)
+        
+        if self.requires_grad:
+            result.requires_grad = True
+            result._children = [(self, -1.0)]
+            result._op_name = "rsub"
+            
+            def _backward():
+                if self.requires_grad:
+                    if self.grad is None:
+                        self.grad = np.zeros_like(self.data)
+                    self.grad -= result.grad  # Note the negative sign for reverse subtraction
+            
+            result.grad_fn = _backward
+        
+        return result
+    
     def __mul__(self, other):
         """Multiply two tensors element-wise."""
         other_data = other.data if isinstance(other, Tensor) else other
@@ -98,6 +150,10 @@ class Tensor:
             result.grad_fn = _backward
         
         return result
+    
+    def __rmul__(self, other):
+        """Multiply this tensor by a scalar (other * self). This is called when a scalar is on the left."""
+        return self.__mul__(other)  # Multiplication is commutative, so we can reuse __mul__
     
     def __pow__(self, power):
         """Raise tensor to a power."""

@@ -16,7 +16,13 @@ import os
 import time
 
 # Import our modules
-from tensor_basics import demo_tensor_basics
+from src.tensor_basics import demo_tensor_basics
+from src.autograd import (
+    demo_automatic_differentiation, 
+    demo_gradient_descent, 
+    demo_optimization_with_autograd,
+    demo_multi_variable_optimization
+)
 
 def print_header(title):
     """Print a formatted header."""
@@ -35,6 +41,33 @@ def main():
     input("\nPress Enter to start Tensor Basics demonstration...")
     print_header("1. TENSOR BASICS")
     demo_tensor_basics()
+
+    # Automatic Differentiation
+    input("\nPress Enter to start Automatic Differentiation demonstration...")
+    print_header("2. AUTOMATIC DIFFERENTIATION")
+    demo_automatic_differentiation()
+    
+    # Gradient Descent
+    input("\nPress Enter to start Gradient Descent demonstration...")
+    print_header("3. GRADIENT DESCENT")
+    demo_gradient_descent()
+    
+    # Optimization with Automatic Differentiation
+    input("\nPress Enter to start Optimization with Automatic Differentiation demonstration...")
+    print_header("4. OPTIMIZATION WITH AUTOMATIC DIFFERENTIATION")
+    demo_optimization_with_autograd()
+    
+    # Multi-Variable Optimization
+    input("\nPress Enter to start Multi-Variable Optimization demonstration...")
+    print_header("5. MULTI-VARIABLE OPTIMIZATION")
+    demo_multi_variable_optimization()
+    
+    # Dataset Loading
+    # input("\nPress Enter to start Dataset Loading demonstration...")
+    # print_header("6. DATASET LOADING")
+    # demo_dataset_loading()  # This function is not defined yet
+    
+    print("\nAll demonstrations complete. Thank you for exploring Deep Learning Foundations!")
 
 
 if __name__ == "__main__":
