@@ -1,4 +1,4 @@
-# DeepLearningEngineRoom
+# Deep Learning Engine Room
 Python code &amp; visualisations exploring the fundamental mechanics within deep learning's engine room
 
 ![Gradient Descent](./gradient_descent.png)
