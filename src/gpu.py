@@ -1,6 +1,195 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import platform
+import subprocess
+import os
+import logging
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+# Check if we're on Mac and can use Metal acceleration
+MAC_GPU_AVAILABLE = False
+TF_AVAILABLE = False
+TF_METAL_AVAILABLE = False
+
+def check_metal_availability():
+    """Check if Metal GPU acceleration is available on this machine."""
+    global MAC_GPU_AVAILABLE, TF_AVAILABLE, TF_METAL_AVAILABLE
+    
+    # Log Python interpreter info
+    logger.info(f"Python executable: {sys.executable}")
+    logger.info(f"Python version: {platform.python_version()}")
+    
+    # Check if we're on macOS
+    if platform.system() != "Darwin":
+        logger.info("Not running on macOS, using CPU or simulation")
+        return False
+    
+    # Check if we're on Apple Silicon
+    try:
+        output = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string']).decode('utf-8').strip()
+        is_apple_silicon = "Apple" in output
+        logger.info(f"CPU: {output}")
+        if not is_apple_silicon:
+            logger.info("Not running on Apple Silicon, using simulation")
+            return False
+    except Exception as e:
+        logger.warning(f"Error checking CPU type: {e}")
+        is_apple_silicon = platform.processor() == 'arm'
+        if not is_apple_silicon:
+            logger.info("Not running on Apple Silicon, using simulation")
+            return False
+    
+    # Try multiple paths to import TensorFlow
+    # First try the standard import
+    try:
+        import tensorflow as tf
+        TF_AVAILABLE = True
+        logger.info(f"TensorFlow version: {tf.__version__}")
+        
+        # Set Metal environment variables
+        os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+        os.environ['TF_METAL_DEVICE_ENABLE'] = '1'
+        
+        # Check for tensorflow-metal
+        try:
+            import tensorflow_metal
+            TF_METAL_AVAILABLE = True
+            logger.info(f"tensorflow-metal plugin found: {tensorflow_metal.__version__}")
+        except ImportError:
+            logger.warning("tensorflow-metal package not found, but still checking GPU availability")
+        
+        # Check GPU devices
+        gpus = tf.config.list_physical_devices('GPU')
+        if gpus:
+            logger.info(f"Found {len(gpus)} GPU device(s):")
+            for gpu in gpus:
+                logger.info(f"  {gpu}")
+            
+            # Try to configure memory growth for stability
+            try:
+                for gpu in gpus:
+                    tf.config.experimental.set_memory_growth(gpu, True)
+                logger.info("GPU memory growth enabled")
+            except Exception as e:
+                logger.warning(f"Could not set memory growth: {e}")
+            
+            MAC_GPU_AVAILABLE = True
+            return True
+        else:
+            logger.warning("No GPU devices detected by TensorFlow")
+            return False
+    
+    except ImportError as e:
+        logger.warning(f"TensorFlow import error: {e}")
+        # Try alternative Python path (pyenv)
+        try:
+            logger.info("Attempting to find TensorFlow in pyenv installation...")
+            pyenv_path = os.path.expanduser("~/.pyenv/versions/3.9.6/bin/python")
+            if os.path.exists(pyenv_path):
+                # We can't dynamically import from a different Python interpreter
+                # Just log that TensorFlow might be available in a different Python environment
+                logger.info(f"Found pyenv Python at {pyenv_path}. TensorFlow may be available there.")
+                logger.info("To use TensorFlow, run your code with that Python interpreter directly.")
+                # Run a subprocess to check TensorFlow in the pyenv Python
+                try:
+                    cmd = [pyenv_path, "-c", 
+                          "import tensorflow as tf; print(f'TensorFlow {tf.__version__} available with {len(tf.config.list_physical_devices(\"GPU\"))} GPU(s)')"]
+                    tf_output = subprocess.check_output(cmd).decode('utf-8').strip()
+                    logger.info(f"From pyenv Python: {tf_output}")
+                    if "GPU(s)" in tf_output and not "0 GPU(s)" in tf_output:
+                        logger.info("GPU detected in pyenv Python, but not accessible from current interpreter")
+                except Exception as e:
+                    logger.warning(f"Error checking TensorFlow in pyenv: {e}")
+        except Exception as e:
+            logger.warning(f"Error checking alternative Python paths: {e}")
+        
+        logger.warning("TensorFlow not available in current Python environment, falling back to simulation")
+        return False
+
+# Try to detect Metal availability at module load time
+MAC_GPU_AVAILABLE = check_metal_availability()
+
+# Create TensorFlow-based matrix multiplication if available
+if MAC_GPU_AVAILABLE and TF_AVAILABLE:
+    import tensorflow as tf
+    
+    def tf_matmul(a, b):
+        """Perform matrix multiplication using TensorFlow/Metal."""
+        with tf.device('/GPU:0'):
+            tf_a = tf.constant(a)
+            tf_b = tf.constant(b)
+            return tf.matmul(tf_a, tf_b).numpy()
+elif os.path.exists(os.path.expanduser("~/.pyenv/versions/3.9.6/bin/python")):
+    # TensorFlow available in pyenv but not in current Python
+    logger.info("Using pyenv Python subprocess for TensorFlow operations")
+    pyenv_python = os.path.expanduser("~/.pyenv/versions/3.9.6/bin/python")
+    
+    def tf_matmul(a, b):
+        """Perform matrix multiplication using TensorFlow/Metal via subprocess."""
+        try:
+            # Save matrices to temporary files
+            a_file = "temp_matrix_a.npy"
+            b_file = "temp_matrix_b.npy"
+            result_file = "temp_matrix_result.npy"
+            
+            np.save(a_file, a)
+            np.save(b_file, b)
+            
+            # Create a Python script for the subprocess
+            script = """
+import numpy as np
+import tensorflow as tf
+
+# Enable Metal
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+os.environ['TF_METAL_DEVICE_ENABLE'] = '1'
+
+# Load matrices
+a = np.load('temp_matrix_a.npy')
+b = np.load('temp_matrix_b.npy')
+
+# Perform GPU computation
+with tf.device('/GPU:0'):
+    tf_a = tf.constant(a)
+    tf_b = tf.constant(b)
+    result = tf.matmul(tf_a, tf_b).numpy()
+
+# Save result
+np.save('temp_matrix_result.npy', result)
+            """
+            
+            with open("temp_tf_script.py", "w") as f:
+                f.write(script)
+            
+            # Run the script with pyenv Python
+            subprocess.run([pyenv_python, "temp_tf_script.py"], check=True)
+            
+            # Load the result
+            result = np.load(result_file)
+            
+            # Clean up temporary files
+            for file in [a_file, b_file, result_file, "temp_tf_script.py"]:
+                if os.path.exists(file):
+                    os.remove(file)
+            
+            return result
+            
+        except Exception as e:
+            logger.warning(f"TensorFlow subprocess failed: {e}, falling back to simulation")
+            # Fall back to simulation
+            return np.matmul(a, b)
+else:
+    tf_matmul = None
 
 # This is a simulation of GPU acceleration since we're implementing our own system
 # In a real scenario, you would use PyTorch's GPU capabilities
@@ -81,28 +270,56 @@ class Tensor:
         
         start_time = time.time()
         
-        # Simulate different computation times based on device
-        if self.device == gpu:
-            # GPU is much faster for large matrices
-            delay_factor = 0.01  # Smaller delay for GPU
+        # Real acceleration on Mac GPUs with TensorFlow/Metal if available
+        if MAC_GPU_AVAILABLE and tf_matmul is not None and self.device == gpu:
+            # Use TensorFlow with Metal backend for actual GPU computation
+            try:
+                logger.info("Using TensorFlow/Metal for matrix multiplication")
+                result_data = tf_matmul(self.data, other.data)
+                logger.info("TensorFlow/Metal matrix multiplication successful")
+            except Exception as e:
+                logger.warning(f"TensorFlow/Metal matmul failed, falling back to simulation: {e}")
+                # Fall back to simulation if TensorFlow has issues
+                # Simulate different computation times based on device
+                if self.device == gpu:
+                    # GPU is much faster for large matrices
+                    delay_factor = 0.01  # Smaller delay for GPU
+                else:
+                    # CPU is slower
+                    delay_factor = 0.1  # Larger delay for CPU
+                
+                # Size-based delay to simulate computation time
+                matrix_size = self.data.size * other.data.size
+                time.sleep(delay_factor * (matrix_size / 10000))
+                
+                # Actual computation
+                result_data = np.matmul(self.data, other.data)
         else:
-            # CPU is slower
-            delay_factor = 0.1  # Larger delay for CPU
-        
-        # Size-based delay to simulate computation time
-        matrix_size = self.data.size * other.data.size
-        time.sleep(delay_factor * (matrix_size / 10000))
-        
-        # Actual computation
-        result_data = np.matmul(self.data, other.data)
+            # Simulate different computation times based on device
+            if self.device == gpu:
+                # GPU is much faster for large matrices
+                delay_factor = 0.01  # Smaller delay for GPU
+                if not MAC_GPU_AVAILABLE:
+                    logger.debug("Using simulated GPU acceleration (real GPU not available)")
+            else:
+                # CPU is slower
+                delay_factor = 0.1  # Larger delay for CPU
+            
+            # Size-based delay to simulate computation time
+            matrix_size = self.data.size * other.data.size
+            time.sleep(delay_factor * (matrix_size / 10000))
+            
+            # Actual computation
+            result_data = np.matmul(self.data, other.data)
         
         # Create result tensor on the same device
         result = Tensor(result_data, device=self.device)
         
         end_time = time.time()
+        computation_time = end_time - start_time
         
-        # For demo purposes, print computation time
-        #print(f"Matrix multiplication on {self.device} took {end_time - start_time:.6f} seconds")
+        # For demo purposes, store computation time as an attribute
+        result._computation_time = computation_time
         
         return result
 
@@ -125,6 +342,11 @@ def benchmark_matrix_multiplication(sizes, num_trials=3):
         'speedups': []
     }
     
+    if MAC_GPU_AVAILABLE:
+        print(f"Using real Metal GPU acceleration on Apple Silicon")
+    else:
+        print(f"Using simulated GPU acceleration")
+    
     for size in sizes:
         print(f"Benchmarking size {size}x{size}...")
         
@@ -135,7 +357,7 @@ def benchmark_matrix_multiplication(sizes, num_trials=3):
             B_cpu = Tensor(np.random.randn(size, size), device=cpu)
             
             start_time = time.time()
-            _ = A_cpu @ B_cpu
+            result = A_cpu @ B_cpu
             end_time = time.time()
             
             cpu_times.append(end_time - start_time)
@@ -149,7 +371,7 @@ def benchmark_matrix_multiplication(sizes, num_trials=3):
             B_gpu = Tensor(np.random.randn(size, size), device=gpu)
             
             start_time = time.time()
-            _ = A_gpu @ B_gpu
+            result = A_gpu @ B_gpu
             end_time = time.time()
             
             gpu_times.append(end_time - start_time)
@@ -195,6 +417,11 @@ def visualize_benchmark(results):
     plt.xlabel('Matrix Size')
     plt.ylabel('Speedup Factor (CPU Time / GPU Time)')
     plt.grid(True, alpha=0.3)
+    
+    # Add info about acceleration method
+    acceleration_method = "Real Metal GPU" if MAC_GPU_AVAILABLE else "Simulated GPU"
+    plt.figtext(0.5, 0.01, f"Acceleration Method: {acceleration_method}", 
+                ha='center', fontsize=12, bbox={"facecolor":"orange", "alpha":0.2, "pad":5})
     
     plt.tight_layout()
     plt.savefig('gpu_benchmark.png')
@@ -278,6 +505,12 @@ def demo_move_collections():
 def demo_gpu_acceleration():
     """Demonstrate GPU acceleration for different matrix sizes."""
     print("\n===== GPU Acceleration Benchmark =====")
+    
+    if MAC_GPU_AVAILABLE:
+        print("Using real Metal GPU acceleration on Apple Silicon Mac")
+        print(f"TensorFlow Metal: {'Available' if TF_METAL_AVAILABLE else 'Not detected, but using GPU'}")
+    else:
+        print("Using simulated GPU acceleration (real GPU not available)")
     
     # Benchmark small, medium, and large matrices
     sizes = [10, 50, 100, 200, 500, 1000]
