@@ -24,6 +24,7 @@ from src.autograd import (
     demo_multi_variable_optimization
 )
 from src.datasets import demo_dataset_loading
+from src.neural_network import demo_neural_network
 
 
 def print_header(title):
@@ -68,6 +69,11 @@ def main():
     input("\nPress Enter to start Dataset Loading demonstration...")
     print_header("6. DATASET LOADING")
     demo_dataset_loading()
+
+    # Neural Network Training
+    input("\nPress Enter to start Neural Network Training demonstration...")
+    print_header("7. NEURAL NETWORK TRAINING")
+    demo_neural_network()
     
     print("\nAll demonstrations complete. Thank you for exploring Deep Learning Foundations!")
 
