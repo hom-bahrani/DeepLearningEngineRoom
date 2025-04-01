@@ -232,6 +232,8 @@ def demo_tensor_basics():
     
     print(f"\nMatrix A:\n{matrix_a}")
     print(f"Shape of Matrix A: {matrix_a.shape}")
+    print(f"\nMatrix B:\n{matrix_b}")
+    print(f"Shape of Matrix B: {matrix_b.shape}")
     
     # Matrix multiplication
     result = matrix_a.matmul(matrix_b)
