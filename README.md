@@ -19,5 +19,5 @@ pip install -r requirements.txt
 ### Run the python code 
 
 ```bash
-python3 src/tensor_basics.py
+python3 main.py
 ```
