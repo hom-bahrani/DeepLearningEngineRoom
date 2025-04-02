@@ -254,157 +254,310 @@ const DeepLearningVisualizer = () => {
   };
 
   // Render the Introduction tab content
-  const renderIntroduction = () => (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-4">Welcome to Deep Learning Foundations</h2>
-      
-      <p className="mb-4">
-        This interactive app demonstrates the core concepts from Chapter 1 of "Inside Deep Learning".
-        You can explore each concept through visualizations and interactive controls.
-      </p>
-      
-      <h3 className="text-xl font-semibold mb-2 mt-6">What You'll Learn</h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="bg-blue-50 p-4 rounded">
-          <h4 className="font-bold">Tensors</h4>
-          <p>The fundamental data structure for deep learning</p>
-        </div>
+  const renderIntroduction = () => {
+    // Inline styles for components
+    const styles: {[key: string]: React.CSSProperties} = {
+      container: {
+        padding: '1.5rem',
+        backgroundColor: 'white',
+        borderRadius: '0.5rem',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      },
+      heading: {
+        fontSize: '1.5rem',
+        fontWeight: 'bold',
+        marginBottom: '1rem'
+      },
+      paragraph: {
+        marginBottom: '1rem'
+      },
+      subheading: {
+        fontSize: '1.25rem',
+        fontWeight: '600',
+        marginBottom: '0.5rem',
+        marginTop: '1.5rem'
+      },
+      gridContainer: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '1rem',
+        marginBottom: '1.5rem'
+      },
+      card: {
+        padding: '1rem',
+        borderRadius: '0.25rem'
+      },
+      blueCard: {
+        backgroundColor: '#EBF5FF',
+      },
+      greenCard: {
+        backgroundColor: '#F0FFF4',
+      },
+      yellowCard: {
+        backgroundColor: '#FFFFF0',
+      },
+      purpleCard: {
+        backgroundColor: '#FAF5FF',
+      },
+      redCard: {
+        backgroundColor: '#FFF5F5',
+      },
+      indigoCard: {
+        backgroundColor: '#F0F5FF',
+      },
+      cardTitle: {
+        fontWeight: 'bold'
+      },
+      gettingStarted: {
+        backgroundColor: '#F3F4F6',
+        padding: '1rem',
+        borderRadius: '0.5rem',
+        marginTop: '1.5rem'
+      }
+    };
+
+    return (
+      <div style={styles.container}>
+        <h2 style={styles.heading}>Welcome to Deep Learning Foundations</h2>
         
-        <div className="bg-green-50 p-4 rounded">
-          <h4 className="font-bold">Automatic Differentiation</h4>
-          <p>How machines learn by calculating gradients</p>
-        </div>
-        
-        <div className="bg-yellow-50 p-4 rounded">
-          <h4 className="font-bold">Gradient Descent</h4>
-          <p>The optimization process that powers learning</p>
-        </div>
-        
-        <div className="bg-purple-50 p-4 rounded">
-          <h4 className="font-bold">Datasets</h4>
-          <p>How data is prepared and fed to neural networks</p>
-        </div>
-        
-        <div className="bg-red-50 p-4 rounded">
-          <h4 className="font-bold">Neural Networks</h4>
-          <p>Building and training simple neural networks</p>
-        </div>
-        
-        <div className="bg-indigo-50 p-4 rounded">
-          <h4 className="font-bold">GPU Acceleration</h4>
-          <p>How hardware speeds up deep learning computations</p>
-        </div>
-      </div>
-      
-      <p className="mb-4">
-        Select any tab above to start exploring these concepts. Each section includes 
-        interactive controls that let you experiment with the parameters and see the results in real-time.
-      </p>
-      
-      <div className="bg-gray-100 p-4 rounded-lg mt-6">
-        <h3 className="text-lg font-semibold mb-2">Getting Started</h3>
-        <p>
-          Click on the "Tensors" tab to begin your journey into deep learning fundamentals.
-          Make sure to try the interactive elements on each page!
+        <p style={styles.paragraph}>
+          This interactive app demonstrates the core concepts from Chapter 1 of "Inside Deep Learning".
+          You can explore each concept through visualizations and interactive controls.
         </p>
+        
+        <h3 style={styles.subheading}>What You'll Learn</h3>
+        
+        <div style={styles.gridContainer}>
+          <div style={{...styles.card, ...styles.blueCard}}>
+            <h4 style={styles.cardTitle}>Tensors</h4>
+            <p>The fundamental data structure for deep learning</p>
+          </div>
+          
+          <div style={{...styles.card, ...styles.greenCard}}>
+            <h4 style={styles.cardTitle}>Automatic Differentiation</h4>
+            <p>How machines learn by calculating gradients</p>
+          </div>
+          
+          <div style={{...styles.card, ...styles.yellowCard}}>
+            <h4 style={styles.cardTitle}>Gradient Descent</h4>
+            <p>The optimization process that powers learning</p>
+          </div>
+          
+          <div style={{...styles.card, ...styles.purpleCard}}>
+            <h4 style={styles.cardTitle}>Datasets</h4>
+            <p>How data is prepared and fed to neural networks</p>
+          </div>
+          
+          <div style={{...styles.card, ...styles.redCard}}>
+            <h4 style={styles.cardTitle}>Neural Networks</h4>
+            <p>Building and training simple neural networks</p>
+          </div>
+          
+          <div style={{...styles.card, ...styles.indigoCard}}>
+            <h4 style={styles.cardTitle}>GPU Acceleration</h4>
+            <p>How hardware speeds up deep learning computations</p>
+          </div>
+        </div>
+        
+        <p style={styles.paragraph}>
+          Select any tab above to start exploring these concepts. Each section includes 
+          interactive controls that let you experiment with the parameters and see the results in real-time.
+        </p>
+        
+        <div style={styles.gettingStarted}>
+          <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem'}}>Getting Started</h3>
+          <p>
+            Click on the "Tensors" tab to begin your journey into deep learning fundamentals.
+            Make sure to try the interactive elements on each page!
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Render the Tensors tab content
-  const renderTensors = () => (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-4">Tensors: The Building Blocks</h2>
-      
-      <p className="mb-6">
-        Tensors are multi-dimensional arrays that form the foundation of deep learning.
-        They can represent scalars (0D), vectors (1D), matrices (2D), and higher-dimensional data.
-      </p>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Tensor 1</h3>
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            {tensor1.map((row, i) => (
+  const renderTensors = () => {
+    // Inline styles for the Tensors section
+    const styles: {[key: string]: React.CSSProperties} = {
+      container: {
+        padding: '1.5rem',
+        backgroundColor: 'white',
+        borderRadius: '0.5rem',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      },
+      heading: {
+        fontSize: '1.5rem',
+        fontWeight: 'bold',
+        marginBottom: '1rem'
+      },
+      paragraph: {
+        marginBottom: '1.5rem'
+      },
+      grid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gap: '1.5rem',
+        marginBottom: '1.5rem'
+      },
+      gridLarge: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '1.5rem',
+        marginBottom: '1.5rem'
+      },
+      tensorBox: {
+        backgroundColor: '#F9FAFB',
+        padding: '1rem',
+        borderRadius: '0.5rem',
+      },
+      boxHeading: {
+        fontSize: '1.125rem',
+        fontWeight: '600',
+        marginBottom: '0.5rem'
+      },
+      tensorGrid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '0.5rem',
+        marginBottom: '1rem'
+      },
+      input: {
+        padding: '0.5rem',
+        border: '1px solid #D1D5DB',
+        borderRadius: '0.25rem',
+        textAlign: 'center'
+      },
+      select: {
+        padding: '0.5rem',
+        border: '1px solid #D1D5DB',
+        borderRadius: '0.25rem',
+        width: '100%'
+      },
+      resultBox: {
+        backgroundColor: '#EBF5FF',
+        padding: '1rem',
+        borderRadius: '0.5rem',
+        marginBottom: '1.5rem'
+      },
+      resultGrid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '0.5rem'
+      },
+      resultCell: {
+        padding: '0.5rem',
+        border: '1px solid #D1D5DB',
+        backgroundColor: 'white',
+        borderRadius: '0.25rem',
+        textAlign: 'center'
+      },
+      keyPoints: {
+        backgroundColor: '#F3F4F6',
+        padding: '1rem',
+        borderRadius: '0.5rem'
+      },
+      keyPointsList: {
+        listStyleType: 'disc',
+        marginLeft: '1.25rem',
+      },
+      keyPointsItem: {
+        marginBottom: '0.25rem'
+      }
+    };
+
+    return (
+      <div style={styles.container}>
+        <h2 style={styles.heading}>Tensors: The Building Blocks</h2>
+        
+        <p style={styles.paragraph}>
+          Tensors are multi-dimensional arrays that form the foundation of deep learning.
+          They can represent scalars (0D), vectors (1D), matrices (2D), and higher-dimensional data.
+        </p>
+        
+        <div style={styles.gridLarge}>
+          <div style={styles.tensorBox}>
+            <h3 style={styles.boxHeading}>Tensor 1</h3>
+            <div style={styles.tensorGrid}>
+              {tensor1.map((row, i) => (
+                row.map((value, j) => (
+                  <input
+                    key={`t1-${i}-${j}`}
+                    type="number"
+                    style={styles.input}
+                    value={value}
+                    onChange={(e) => {
+                      const newTensor = [...tensor1];
+                      newTensor[i][j] = parseFloat(e.target.value);
+                      setTensor1(newTensor);
+                      handleTensorOpChange({ target: { value: tensorOp } } as React.ChangeEvent<HTMLSelectElement>);
+                    }}
+                  />
+                ))
+              ))}
+            </div>
+          </div>
+          
+          <div style={styles.tensorBox}>
+            <h3 style={styles.boxHeading}>Tensor 2</h3>
+            <div style={styles.tensorGrid}>
+              {tensor2.map((row, i) => (
+                row.map((value, j) => (
+                  <input
+                    key={`t2-${i}-${j}`}
+                    type="number"
+                    style={styles.input}
+                    value={value}
+                    onChange={(e) => {
+                      const newTensor = [...tensor2];
+                      newTensor[i][j] = parseFloat(e.target.value);
+                      setTensor2(newTensor);
+                      handleTensorOpChange({ target: { value: tensorOp } } as React.ChangeEvent<HTMLSelectElement>);
+                    }}
+                  />
+                ))
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <div style={{marginBottom: '1.5rem'}}>
+          <h3 style={styles.boxHeading}>Operation</h3>
+          <select
+            style={styles.select}
+            value={tensorOp}
+            onChange={handleTensorOpChange}
+          >
+            <option value="add">Addition</option>
+            <option value="subtract">Subtraction</option>
+            <option value="multiply">Element-wise Multiplication</option>
+          </select>
+        </div>
+        
+        <div style={styles.resultBox}>
+          <h3 style={styles.boxHeading}>Result</h3>
+          <div style={styles.resultGrid}>
+            {tensorResult.map((row, i) => (
               row.map((value, j) => (
-                <input
-                  key={`t1-${i}-${j}`}
-                  type="number"
-                  className="p-2 border rounded text-center"
-                  value={value}
-                  onChange={(e) => {
-                    const newTensor = [...tensor1];
-                    newTensor[i][j] = parseFloat(e.target.value);
-                    setTensor1(newTensor);
-                    handleTensorOpChange({ target: { value: tensorOp } } as React.ChangeEvent<HTMLSelectElement>);
-                  }}
-                />
+                <div key={`result-${i}-${j}`} style={styles.resultCell}>
+                  {value}
+                </div>
               ))
             ))}
           </div>
         </div>
         
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Tensor 2</h3>
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            {tensor2.map((row, i) => (
-              row.map((value, j) => (
-                <input
-                  key={`t2-${i}-${j}`}
-                  type="number"
-                  className="p-2 border rounded text-center"
-                  value={value}
-                  onChange={(e) => {
-                    const newTensor = [...tensor2];
-                    newTensor[i][j] = parseFloat(e.target.value);
-                    setTensor2(newTensor);
-                    handleTensorOpChange({ target: { value: tensorOp } } as React.ChangeEvent<HTMLSelectElement>);
-                  }}
-                />
-              ))
-            ))}
-          </div>
+        <div style={styles.keyPoints}>
+          <h3 style={styles.boxHeading}>Key Points</h3>
+          <ul style={styles.keyPointsList}>
+            <li style={styles.keyPointsItem}>Tensors are the primary data structure in deep learning frameworks</li>
+            <li style={styles.keyPointsItem}>PyTorch and TensorFlow operations work with tensors</li>
+            <li style={styles.keyPointsItem}>Tensors can represent inputs, outputs, and model parameters</li>
+            <li style={styles.keyPointsItem}>GPUs are optimized for tensor operations, making deep learning faster</li>
+          </ul>
         </div>
       </div>
-      
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Operation</h3>
-        <select
-          className="p-2 border rounded w-full"
-          value={tensorOp}
-          onChange={handleTensorOpChange}
-        >
-          <option value="add">Addition</option>
-          <option value="subtract">Subtraction</option>
-          <option value="multiply">Element-wise Multiplication</option>
-        </select>
-      </div>
-      
-      <div className="bg-blue-50 p-4 rounded-lg mb-6">
-        <h3 className="text-lg font-semibold mb-2">Result</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {tensorResult.map((row, i) => (
-            row.map((value, j) => (
-              <div key={`result-${i}-${j}`} className="p-2 border bg-white rounded text-center">
-                {value}
-              </div>
-            ))
-          ))}
-        </div>
-      </div>
-      
-      <div className="bg-gray-100 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">Key Points</h3>
-        <ul className="list-disc ml-5 space-y-1">
-          <li>Tensors are the primary data structure in deep learning frameworks</li>
-          <li>PyTorch and TensorFlow operations work with tensors</li>
-          <li>Tensors can represent inputs, outputs, and model parameters</li>
-          <li>GPUs are optimized for tensor operations, making deep learning faster</li>
-        </ul>
-      </div>
-    </div>
-  );
+    );
+  };
 
   // Render the Automatic Differentiation tab content
   const renderAutoDiff = () => (
@@ -1206,26 +1359,81 @@ z = x @ y  # matrix multiplication`}</code>
     }
   };
 
+  // Main component styles
+  const mainStyles: {[key: string]: React.CSSProperties} = {
+    container: {
+      minHeight: '100vh',
+      backgroundColor: '#F3F4F6',
+      padding: '1.5rem',
+    },
+    content: {
+      maxWidth: '72rem',
+      margin: '0 auto',
+    },
+    header: {
+      backgroundColor: 'white',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      borderRadius: '0.5rem',
+      padding: '1rem',
+      marginBottom: '1.5rem',
+    },
+    title: {
+      fontSize: '1.875rem',
+      fontWeight: 'bold',
+      color: '#1F2937',
+    },
+    subtitle: {
+      color: '#4B5563',
+    },
+    tabContainer: {
+      display: 'flex',
+      overflowX: 'auto' as const,
+      backgroundColor: 'white',
+      borderTopLeftRadius: '0.5rem',
+      borderTopRightRadius: '0.5rem',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      marginBottom: '0.25rem',
+      padding: '0.25rem',
+    },
+    tab: {
+      padding: '0.5rem 1rem',
+      fontSize: '0.875rem',
+      fontWeight: '500',
+      borderRadius: '0.5rem',
+      marginRight: '0.25rem',
+      whiteSpace: 'nowrap' as const,
+      transition: 'all 0.2s',
+      cursor: 'pointer',
+    },
+    activeTab: {
+      backgroundColor: '#3B82F6',
+      color: 'white',
+    },
+    inactiveTab: {
+      backgroundColor: '#F3F4F6',
+      color: '#4B5563',
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="bg-white shadow rounded-lg p-4 mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Deep Learning Foundations</h1>
-          <p className="text-gray-600">
+    <div style={mainStyles.container}>
+      <div style={mainStyles.content}>
+        <header style={mainStyles.header}>
+          <h1 style={mainStyles.title}>Deep Learning Foundations</h1>
+          <p style={mainStyles.subtitle}>
             An interactive exploration of fundamental deep learning concepts
           </p>
         </header>
         
         {/* Navigation Tabs */}
-        <div className="flex overflow-x-auto bg-white rounded-t-lg shadow mb-1 p-1">
+        <div style={mainStyles.tabContainer}>
           {Object.values(TABS).map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-2 text-sm font-medium rounded-lg mr-1 whitespace-nowrap transition-colors ${
-                activeTab === tab
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-              }`}
+              style={{
+                ...mainStyles.tab,
+                ...(activeTab === tab ? mainStyles.activeTab : mainStyles.inactiveTab)
+              }}
               onClick={() => setActiveTab(tab)}
             >
               {tab}
